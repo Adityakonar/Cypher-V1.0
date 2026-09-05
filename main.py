@@ -2,7 +2,6 @@ import speech_recognition as sr
 import win32com.client
 import webbrowser
 import datetime
-import os
 
 speaker = win32com.client.Dispatch("SAPI.SpVoice")
 
@@ -34,8 +33,4 @@ if __name__ == '__main__':
         print(f"The time is {strfTime}")
         say(f"The time is {strfTime}")
 
-    if "open blender"in query:
-        os.startfile(r"C:\Program Files\Blender Foundation\Blender 5.1\blender.exe")
-    if "open autocad".lower() in query.lower():
-        os.startfile(r"C:\Program Files\Autodesk\AutoCAD 2027\acad.exe")
             
