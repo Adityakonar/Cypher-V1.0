@@ -1,6 +1,7 @@
 import streamlit as st
 import speech_recognition as sr
 import streamlit.components.v1 as components
+from main import ask_cypher
 
 # 1. Page Config & Sci-Fi Modern UI Styling
 st.set_page_config(page_title="CYPHER V 1.0 HUD Interface", page_icon="⚡", layout="wide")
@@ -80,15 +81,27 @@ st.write("---")
 
 # Browser Speech Output Function
 def speak_in_browser(text):
+    # Take only the first 2 sentences
+    sentences = text.replace("\n", " ").split(".")
+    short_text = ".".join(sentences[:2]).strip()
+
+    if short_text:
+        short_text += "."
+
+    safe_text = short_text.replace("\\", "\\\\").replace('"', '\\"')
+
     js_code = f"""
         <script>
-            var msg = new SpeechSynthesisUtterance("{text}");
-            msg.lang = 'en-US';
+            var msg = new SpeechSynthesisUtterance("{safe_text}");
+            msg.lang = "en-IN";
             msg.rate = 1.0;
             msg.pitch = 1.0;
+
+            window.speechSynthesis.cancel();
             window.speechSynthesis.speak(msg);
         </script>
     """
+
     components.html(js_code, height=0)
 
 # Safe Microphone Voice Recognition Function
@@ -185,7 +198,8 @@ with col1:
         query = takeCommand()
         if query:
             st.session_state['user_said'] = query
-            st.session_state['cypher_reply'] = f"User said : {query}"
+            # Send the user's question to Gemini
+            st.session_state['cypher_reply'] = ask_cypher(query)
         else:
             st.session_state['user_said'] = "NO VOICE DATA DETECTED"
             st.session_state['cypher_reply'] = "Access Denied. Voice signal not recognized or microphone unavailable."

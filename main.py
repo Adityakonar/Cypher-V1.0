@@ -1,36 +1,25 @@
-import speech_recognition as sr
-import win32com.client
-import webbrowser
-import datetime
+from google import genai
 
-speaker = win32com.client.Dispatch("SAPI.SpVoice")
+client = genai.Client()
 
-def say(text):
-    speaker.Speak(text)
+def ask_cypher(query):
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.7-flash",
+            contents=query
+        )
 
-def takeCommand():
-    r=sr.Recognizer()
-    
-    with sr.Microphone() as source:
-        r.pause_threshold = 1
-        audio =r.listen(source)
-        try:
-            query = r.recognize_google(audio, language="en-IN")
-            print(f"User said : {query}")
-            return query
-        except Exception as e:
-            return "Please Repeat Closer to the microphone"
-if __name__ == '__main__':
-    print("Listening.....")
-    query=takeCommand()
-    sites= [["youtube","https://www.youtube.com"], ["wikipedia", "https://www.wikipedia.com"], ["google","https://www.google.com"],["chat gpt","https://www.chatgpt.com"]]
-    for site in sites:
-        if f"open {site[0]}".lower() in query.lower():
-            say(f"Opening{site[0]}")
-            webbrowser.open(site[1])
-    if "the time" in query:
-        strfTime=datetime.datetime.now().strftime("%H:%M:%S")
-        print(f"The time is {strfTime}")
-        say(f"The time is {strfTime}")
+        return response.text
 
-            
+    except Exception as e:
+        print("Gemini Error:", e)
+        return "Sorry, my AI system is temporarily unavailable. Please try again."
+
+
+if __name__ == "__main__":
+    print("CYPHER is online.")
+
+    question = input("You: ")
+    answer = ask_cypher(question)
+
+    print("CYPHER:", answer)
